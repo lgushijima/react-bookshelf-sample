@@ -1,58 +1,74 @@
-import React, { Component } from 'react'
-import ListContacts from './ListContacts'
-import * as ContactsAPI from './utils/ContactsAPI'
-import CreateContact from './CreateContact'
+import React from 'react'
+import * as BooksAPI from './BooksAPI'
+import './App.css'
+
 import { Route } from 'react-router-dom'
+import SearchBook from './Components/SearchBook'
+import Bookshelves from './Components/Bookshelves'
 
-class App extends Component {
-  state = {
-    contacts: []
-  }
-  componentDidMount() {
-    ContactsAPI.getAll()
-      .then((contacts) => {
-        this.setState(() => ({
-          contacts
-        }))
-      })
-  }
-  removeContact = (contact) => {
-    this.setState((currentState) => ({
-      contacts: currentState.contacts.filter((c) => {
-        return c.id !== contact.id
-      })
-    }))
+const sections = [
+    {id: "currentlyReading", title: "Currently Reading"},
+    {id: "wantToRead", title: "Want to Read"},
+    {id: "read", title: "Read"}
+];
 
-    ContactsAPI.remove(contact)
-  }
-  createContact = (contact) => {
-    ContactsAPI.create(contact)
-      .then((contact) => {
-        this.setState((currentState) => ({
-          contacts: currentState.contacts.concat([contact])
-        }))
-      })
-  }
-  render() {
-    return (
-      <div>
-        <Route exact path='/' render={() => (
-          <ListContacts
-            contacts={this.state.contacts}
-            onDeleteContact={this.removeContact}
-          />
-        )} />
-        <Route path='/create' render={({ history }) => (
-          <CreateContact
-            onCreateContact={(contact) => {
-              this.createContact(contact)
-              history.push('/')
-            }}
-          />
-        )} />
-      </div>
-    )
-  }
+class BooksApp extends React.Component {
+    state = {
+        books: [],
+        searchResults: [],
+        showSearchPage: false
+    }
+
+    componentDidMount(){
+        BooksAPI.getAll().then(books => {
+            this.setState(()=> {return { books: books }});
+        });
+    }
+
+    onActionClick = (shelfSection, book) => {
+        console.log(shelfSection, book);
+        var selectedBook = this.state.books.filter(b => b.id === book.id);
+        
+        if(selectedBook.length){
+            //-- update book
+            selectedBook[0].shelf = shelfSection;
+            this.setState(prevState => { 
+                return {
+                    books: [...prevState.books]
+                }
+            });
+        }
+        else{
+            //-- add new book
+            book.shelf = shelfSection;
+            this.setState(prevState => {
+                return {
+                    books: [book, ...prevState.books]
+                }
+            });
+        }
+        BooksAPI.update(book, shelfSection);
+    }
+
+    render() {
+        return (
+            <div className="app">
+                <Route exact path="/" render={() => (
+                    <Bookshelves 
+                        sections={sections}
+                        books={this.state.books}
+                        onActionClick={this.onActionClick}
+                    />
+                )}/>
+                <Route exact path="/search" render={() => (
+                    <SearchBook 
+                        currentShelfBooks={this.state.books}
+                        onActionClick={this.onActionClick}
+                    />
+                )}/>
+            </div>
+        )
+    }
 }
 
-export default App
+export default BooksApp
