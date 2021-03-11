@@ -1,8 +1,10 @@
 import React, {Component} from 'react'
 import * as BooksAPI from '../BooksAPI'
-import Book from "./Book";
+import BooksList from "./BooksList"
+import NoBooks from "./NoBooks"
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
+
 
 class SearchBook extends Component{
     static propTypes = {
@@ -43,18 +45,7 @@ class SearchBook extends Component{
                     </div>
                 </div>
                 <div className="search-books-results">
-					{books.length > 0 && (
-                    <ol className="books-grid">
-                        {books.map((book) => 
-                            <li key={book.id}>
-                                <Book book={book} onActionClick={onActionClick} />
-                            </li>
-                        )}
-                    </ol>
-					)}
-					{books.length === 0 && (
-                        <center><p>No results. Please search by title or author.</p></center>
-                    )}
+					{books.length > 0 ? <BooksList books={books} onActionClick={onActionClick} /> : <NoBooks />}
                 </div>
             </div>
         )

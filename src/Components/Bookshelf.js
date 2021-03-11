@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Book from "./Book";
+import BooksList from "./BooksList";
 import PropTypes from 'prop-types'
 
 class Bookshelf extends Component {
@@ -16,13 +16,7 @@ class Bookshelf extends Component {
             <div className="bookshelf">
                 <h2 className="bookshelf-title">{title} - {books.length} {books.length <= 1 ? "book" : "books"}</h2>
                 <div className="bookshelf-books">
-                    <ol className="books-grid">
-                        {books.map((book) => 
-                            <li key={book.id}>
-                                <Book book={book} onActionClick={onActionClick} />
-                            </li>
-                        )}
-                    </ol>
+                    <BooksList books={books} onActionClick={onActionClick} />
                 </div>
             </div>
         );
